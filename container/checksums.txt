@@ -1,0 +1,4 @@
+# sha256 of the upstream source tarballs the build downloads, for `sha256sum --check --ignore-missing`.
+# libvips publishes a .sha256sum file beside each release asset, which the Dockerfile checks directly; libheif
+# publishes none, so its tarballs are pinned here (hash the downloaded file yourself before adding a line).
+4484346dc5995319dbc11e3a1c35d0a2ec46511ce370900869337fd2c7033125  libheif-1.23.6.tar.gz
