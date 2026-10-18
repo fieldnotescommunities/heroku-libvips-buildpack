@@ -1,0 +1,70 @@
+# The loaders and savers (`vips -l`, VipsForeignLoad* and VipsForeignSave* nicknames) the reviewed build has,
+# one per line, sorted. test/check.sh fails when a build's list differs; a change here is a reviewed change to
+# what the library can read or write. Lines starting with # are ignored.
+#
+# Reviewed for 8.18.7 on heroku-26. `load`, `save` and the `*_base` entries are abstract classes, not callable
+# operations. csv, matrix, raw and vips (the .v format) are built into libvips with no option to leave out;
+# the webapp's VipsRunner allowlist blocks them.
+csvload
+csvload_base
+csvload_source
+csvsave
+csvsave_base
+csvsave_target
+gifload
+gifload_base
+gifload_buffer
+gifload_source
+heifload
+heifload_base
+heifload_buffer
+heifload_source
+heifsave
+heifsave_base
+heifsave_buffer
+heifsave_target
+jpegload
+jpegload_base
+jpegload_buffer
+jpegload_source
+jpegsave
+jpegsave_base
+jpegsave_buffer
+jpegsave_mime
+jpegsave_target
+load
+matrixload
+matrixload_base
+matrixload_source
+matrixsave
+matrixsave_base
+matrixsave_target
+pngload
+pngload_base
+pngload_buffer
+pngload_source
+pngsave
+pngsave_base
+pngsave_buffer
+pngsave_target
+rawload
+rawsave
+rawsave_base
+rawsave_buffer
+rawsave_target
+save
+vipsload
+vipsload_base
+vipsload_source
+vipssave
+vipssave_base
+vipssave_target
+webpload
+webpload_base
+webpload_buffer
+webpload_source
+webpsave
+webpsave_base
+webpsave_buffer
+webpsave_mime
+webpsave_target

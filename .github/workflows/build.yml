@@ -1,0 +1,39 @@
+name: Build libvips
+
+# Builds, checks and publishes the libvips tarball for a version as the assets of the release
+# `libvips-<version>`. Re-running for the same version replaces the assets; the sha256 pinned in bin/compile
+# then stops matching until it is moved on purpose.
+on:
+  workflow_dispatch:
+    inputs:
+      vips_version:
+        description: "libvips version (the upstream tag without the v)"
+        required: true
+        default: "8.18.7"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VIPS_VERSION: ${{ inputs.vips_version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and check
+        run: ./build.sh
+
+      - name: Publish as release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="libvips-${VIPS_VERSION}"
+          if ! gh release view "$tag" > /dev/null 2>&1; then
+            gh release create "$tag" --title "libvips ${VIPS_VERSION}" \
+              --notes "Trimmed libvips ${VIPS_VERSION} for Heroku stacks, built by the Build libvips workflow. Pin the tarball's sha256 in bin/compile."
+          fi
+          gh release upload "$tag" build/* --clobber
+          echo "Pinned values for bin/compile:"
+          cat build/*.sha256
