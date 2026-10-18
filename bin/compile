@@ -12,7 +12,7 @@ case "${STACK}" in
   heroku-26)
     VIPS_VERSION="8.18.7"
     LIBHEIF_VERSION="1.23.6"
-    VIPS_SHA256="FILL_IN_FROM_THE_RELEASE_SHA256_ASSET"
+    VIPS_SHA256="2b66ca028161375adc4bfe20b8affb712168b7fbb4ee61650b0587f6634d4bb9"
     ;;
   *)
     echo " !     The libvips buildpack has no build for the '${STACK}' stack" >&2
