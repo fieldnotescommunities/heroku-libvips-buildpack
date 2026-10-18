@@ -1,9 +1,9 @@
 name: Build libvips
 
-# Every pull request builds and checks the libvips version bin/compile pins (the Dockerfiles are what a PR here
-# changes). A manual run builds the given version and publishes it as the assets of the release
-# `libvips-<version>`; re-running for the same version replaces the assets, and the sha256 pinned in bin/compile
-# then stops matching until it is moved on purpose.
+# Every pull request builds and checks the libvips and libheif versions bin/compile pins (the Dockerfiles are
+# what a PR here changes). A manual run builds the given versions and publishes them as the assets of the release
+# `libvips-<vips>-heif<libheif>`; re-running for the same versions replaces the assets, and the sha256 pinned in
+# bin/compile then stops matching until it is moved on purpose.
 on:
   pull_request:
   workflow_dispatch:
@@ -12,6 +12,10 @@ on:
         description: "libvips version (the upstream tag without the v)"
         required: true
         default: "8.18.7"
+      libheif_version:
+        description: "libheif version (the upstream tag without the v; its tarball's sha256 must be in container/checksums.txt)"
+        required: true
+        default: "1.23.6"
 
 permissions:
   contents: write
@@ -22,19 +26,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Choose the version
+      - name: Choose the versions
         id: version
         run: |
-          version="${{ inputs.vips_version }}"
-          if [ -z "$version" ]; then
-            version="$(sed -n 's/^ *VIPS_VERSION="\(.*\)"/\1/p' bin/compile | head -1)"
-            echo "pull request: building the version bin/compile pins, ${version}"
+          vips="${{ inputs.vips_version }}"
+          libheif="${{ inputs.libheif_version }}"
+          if [ -z "$vips" ]; then
+            vips="$(sed -n 's/^ *VIPS_VERSION="\(.*\)"/\1/p' bin/compile | head -1)"
+            libheif="$(sed -n 's/^ *LIBHEIF_VERSION="\(.*\)"/\1/p' bin/compile | head -1)"
+            echo "pull request: building the versions bin/compile pins, libvips ${vips} with libheif ${libheif}"
           fi
-          echo "vips_version=${version}" >> "$GITHUB_OUTPUT"
+          echo "vips_version=${vips}" >> "$GITHUB_OUTPUT"
+          echo "libheif_version=${libheif}" >> "$GITHUB_OUTPUT"
 
       - name: Build and check
         env:
           VIPS_VERSION: ${{ steps.version.outputs.vips_version }}
+          LIBHEIF_VERSION: ${{ steps.version.outputs.libheif_version }}
         run: ./build.sh
 
       - name: Publish as release assets
@@ -42,11 +50,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VIPS_VERSION: ${{ steps.version.outputs.vips_version }}
+          LIBHEIF_VERSION: ${{ steps.version.outputs.libheif_version }}
         run: |
-          tag="libvips-${VIPS_VERSION}"
+          tag="libvips-${VIPS_VERSION}-heif${LIBHEIF_VERSION}"
           if ! gh release view "$tag" > /dev/null 2>&1; then
-            gh release create "$tag" --title "libvips ${VIPS_VERSION}" \
-              --notes "Trimmed libvips ${VIPS_VERSION} for Heroku stacks, built by the Build libvips workflow. Pin the tarball's sha256 in bin/compile."
+            gh release create "$tag" --title "libvips ${VIPS_VERSION} with libheif ${LIBHEIF_VERSION}" \
+              --notes "Trimmed libvips ${VIPS_VERSION} with its own libheif ${LIBHEIF_VERSION} for Heroku stacks, built by the Build libvips workflow. Pin the tarball's sha256 in bin/compile."
           fi
           gh release upload "$tag" build/* --clobber
           echo "Pinned values for bin/compile:"

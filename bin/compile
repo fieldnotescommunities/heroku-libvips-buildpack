@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # bin/compile <BUILD_DIR> <CACHE_DIR> <ENV_DIR>
 #
-# Installs the libvips build this repo's release holds for the stack, pinned here by version and sha256: a
-# re-published asset of the same name fails the build instead of changing what runs. The library is put ahead
-# of the stack's own libvips (which stays in the image) by prepending to LD_LIBRARY_PATH in .profile.d.
+# Installs the libvips build (with its own libheif) this repo's release holds for the stack, pinned here by the
+# two versions and the tarball's sha256: a re-published asset of the same name fails the build instead of
+# changing what runs. The libraries are put ahead of the stack's own libvips and libheif (which stay in the
+# image) by prepending to LD_LIBRARY_PATH in .profile.d.
 
 set -eu -o pipefail
 
 case "${STACK}" in
   heroku-26)
     VIPS_VERSION="8.18.7"
-    VIPS_SHA256="904dd94405cd8b0c559719d89efc239ad66f85847aee06f92087ae8a209223c0"
+    LIBHEIF_VERSION="1.23.6"
+    VIPS_SHA256="FILL_IN_FROM_THE_RELEASE_SHA256_ASSET"
     ;;
   *)
     echo " !     The libvips buildpack has no build for the '${STACK}' stack" >&2
@@ -21,15 +23,16 @@ esac
 BUILDPACK_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD_DIR="$1"
 ARCH="$(dpkg --print-architecture)"
-TARBALL="libvips-${VIPS_VERSION}-${STACK}-${ARCH}.tar.gz"
-INSTALL_URL="https://github.com/fieldnotescommunities/heroku-libvips-buildpack/releases/download/libvips-${VIPS_VERSION}/${TARBALL}"
+RELEASE="libvips-${VIPS_VERSION}-heif${LIBHEIF_VERSION}"
+TARBALL="${RELEASE}-${STACK}-${ARCH}.tar.gz"
+INSTALL_URL="https://github.com/fieldnotescommunities/heroku-libvips-buildpack/releases/download/${RELEASE}/${TARBALL}"
 INSTALL_DIR="${BUILD_DIR}/.heroku/vips"
 
 indent() {
   sed -u 's/^/       /'
 }
 
-echo "-----> Installing libvips ${VIPS_VERSION} for ${STACK} (${ARCH})"
+echo "-----> Installing libvips ${VIPS_VERSION} with libheif ${LIBHEIF_VERSION} for ${STACK} (${ARCH})"
 
 download_dir="$(mktemp -d)"
 trap 'rm -rf "${download_dir}"' EXIT
@@ -51,8 +54,8 @@ tar -xzf "${download_dir}/${TARBALL}" -C "${INSTALL_DIR}"
 echo "Installed $(LD_LIBRARY_PATH="${INSTALL_DIR}/lib" "${INSTALL_DIR}/bin/vips" --version)" | indent
 
 # Run time: $HOME is /app. LD_LIBRARY_PATH is searched before the system directories, so this is what makes
-# ruby-vips's dlopen("libvips.so.42") find ours and not the stack package's; prepending keeps any other
-# buildpack's entry behind it as well.
+# ruby-vips's dlopen("libvips.so.42") find ours and not the stack package's (and our libvips find our libheif);
+# prepending keeps any other buildpack's entry behind it as well.
 mkdir -p "${BUILD_DIR}/.profile.d"
 cat > "${BUILD_DIR}/.profile.d/000_vips.sh" <<'EOF'
 export LD_LIBRARY_PATH="$HOME/.heroku/vips/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"

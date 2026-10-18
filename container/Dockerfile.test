@@ -3,7 +3,8 @@
 # them. If this image builds, the buildpack works on that stack. Context is the repo root.
 #
 #   docker buildx build --platform linux/amd64 --build-arg STACK_VERSION=26 --build-arg VIPS_VERSION=8.18.7 \
-#     --build-arg TARBALL=build/libvips-8.18.7-heroku-26-amd64.tar.gz -f container/Dockerfile.test .
+#     --build-arg LIBHEIF_VERSION=1.23.6 --build-arg TARBALL=build/libvips-8.18.7-heif1.23.6-heroku-26-amd64.tar.gz \
+#     -f container/Dockerfile.test .
 
 ARG STACK_VERSION=26
 
@@ -19,6 +20,7 @@ RUN mkdir -p /app/.heroku/vips \
 FROM heroku/heroku:${STACK_VERSION}
 
 ARG VIPS_VERSION
+ARG LIBHEIF_VERSION
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -27,15 +29,16 @@ COPY --from=unpack /app/.heroku/vips /app/.heroku/vips
 ENV PATH="/app/.heroku/vips/bin:${PATH}" \
     LD_LIBRARY_PATH="/app/.heroku/vips/lib"
 
-# Linking, the operation list, and a conversion of each format we load
-COPY test/check.sh test/expected_operations.txt /tmp/test/
+# Linking, the operation list and its flags, and a conversion of each format we load
+COPY test/check.sh test/check.rb test/expected_operations.txt /tmp/test/
 COPY test/samples /tmp/test/samples
 RUN bash /tmp/test/check.sh "${VIPS_VERSION}" /tmp/test/samples /tmp/test/expected_operations.txt
 
-# ruby-vips must load *this* libvips, not the stack package's (the version proves which). ffi needs a compiler
-# to install, which the run image lacks; that is a test-only install.
+# ruby-vips must load *this* libvips and *this* libheif, not the stack packages' (the versions prove which), and
+# every sample must still load under the blocking the app applies (test/check.rb). ffi needs a compiler to install,
+# which the run image lacks; that is a test-only install.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends ruby-dev build-essential \
   && rm -rf /var/lib/apt/lists/* \
   && gem install --no-document ruby-vips \
-  && ruby -e 'require "vips"; loaded = Vips.version_string; puts "ruby-vips loaded libvips #{loaded}"; abort "expected #{ARGV[0]}" unless loaded == ARGV[0]' "${VIPS_VERSION}"
+  && ruby /tmp/test/check.rb "${VIPS_VERSION}" "${LIBHEIF_VERSION}" /tmp/test/samples
