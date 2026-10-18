@@ -10,7 +10,7 @@ set -eu -o pipefail
 case "${STACK}" in
   heroku-26)
     VIPS_VERSION="8.18.7"
-    VIPS_SHA256="FILL_IN_FROM_THE_RELEASE_SHA256_ASSET"
+    VIPS_SHA256="904dd94405cd8b0c559719d89efc239ad66f85847aee06f92087ae8a209223c0"
     ;;
   *)
     echo " !     The libvips buildpack has no build for the '${STACK}' stack" >&2
