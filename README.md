@@ -51,8 +51,10 @@ Python rather than GNU tar) and in GitHub Actions.
 VIPS_VERSION=8.18.7 ./build.sh     # build/ gets the tarball, its .sha256 and the build's vips --vips-config
 ```
 
-To publish, run the **Build libvips** workflow (Actions, "Run workflow", the version). It builds, checks and
-puts the tarball, `.sha256` and `.config.log` on the release `libvips-<version>`.
+Every pull request runs the same build and check for the version `bin/compile` pins. To publish, run the
+**Build libvips** workflow by hand (Actions, "Run workflow", the version; it appears there once the workflow
+file is on `main`). That run also puts the tarball, `.sha256` and `.config.log` on the release
+`libvips-<version>`.
 
 To move to a new version:
 

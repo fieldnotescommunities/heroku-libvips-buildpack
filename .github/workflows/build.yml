@@ -1,9 +1,11 @@
 name: Build libvips
 
-# Builds, checks and publishes the libvips tarball for a version as the assets of the release
-# `libvips-<version>`. Re-running for the same version replaces the assets; the sha256 pinned in bin/compile
+# Every pull request builds and checks the libvips version bin/compile pins (the Dockerfiles are what a PR here
+# changes). A manual run builds the given version and publishes it as the assets of the release
+# `libvips-<version>`; re-running for the same version replaces the assets, and the sha256 pinned in bin/compile
 # then stops matching until it is moved on purpose.
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       vips_version:
@@ -17,17 +19,29 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      VIPS_VERSION: ${{ inputs.vips_version }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Choose the version
+        id: version
+        run: |
+          version="${{ inputs.vips_version }}"
+          if [ -z "$version" ]; then
+            version="$(sed -n 's/^ *VIPS_VERSION="\(.*\)"/\1/p' bin/compile | head -1)"
+            echo "pull request: building the version bin/compile pins, ${version}"
+          fi
+          echo "vips_version=${version}" >> "$GITHUB_OUTPUT"
+
       - name: Build and check
+        env:
+          VIPS_VERSION: ${{ steps.version.outputs.vips_version }}
         run: ./build.sh
 
       - name: Publish as release assets
+        if: github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
+          VIPS_VERSION: ${{ steps.version.outputs.vips_version }}
         run: |
           tag="libvips-${VIPS_VERSION}"
           if ! gh release view "$tag" > /dev/null 2>&1; then
