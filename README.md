@@ -46,7 +46,7 @@ heroku buildpacks:add -i 2 "https://github.com/fieldnotescommunities/heroku-libv
 
 Pin to a commit: the commit fixes the versions and the sha256 of what is installed. Deploy a commit the app has
 not built (a buildpack change only takes effect at a build). The build log shows
-`-----> Installing libvips 8.18.7 with libheif 1.23.6 for heroku-26 (amd64)` and `Installed vips-8.18.7`.
+`-----> Installing libvips 8.18.7 with libheif 1.23.7 for heroku-26 (amd64)` and `Installed vips-8.18.7`.
 
 ## Building a version
 
@@ -60,7 +60,7 @@ be running; on Apple Silicon it builds the amd64 image under Rosetta, which is w
 Python rather than GNU tar) and in GitHub Actions.
 
 ```
-VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.6 ./build.sh   # build/ gets the tarball, its .sha256 and the config log
+VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.7 ./build.sh   # build/ gets the tarball, its .sha256 and the config log
 ```
 
 Every pull request runs the same build and check for the versions `bin/compile` pins. To publish, run the

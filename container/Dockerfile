@@ -3,7 +3,7 @@
 # and the build's configuration log. Driven by ../build.sh; the shape follows brandoncc/heroku-buildpack-vips (MIT).
 #
 #   docker buildx build --platform linux/amd64 --build-arg STACK_VERSION=26 --build-arg VIPS_VERSION=8.18.7 \
-#     --build-arg LIBHEIF_VERSION=1.23.6 -f container/Dockerfile -t libvips-heroku-26:8.18.7-heif1.23.6 container
+#     --build-arg LIBHEIF_VERSION=1.23.7 -f container/Dockerfile -t libvips-heroku-26:8.18.7-heif1.23.7 container
 
 ARG STACK_VERSION=26
 FROM heroku/heroku:${STACK_VERSION}-build

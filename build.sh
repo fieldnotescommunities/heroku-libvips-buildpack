@@ -2,13 +2,13 @@
 # Builds and checks libvips (with its libheif) for each stack, into build/. The same script runs on a laptop
 # (Docker Desktop) and in the GitHub Actions workflow, which then publishes build/ as release assets.
 #
-#   VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.6 ./build.sh            # heroku-26
-#   VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.6 STACK_VERSIONS="26 28" ./build.sh
+#   VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.7 ./build.sh            # heroku-26
+#   VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.7 STACK_VERSIONS="26 28" ./build.sh
 
 set -eu -o pipefail
 
-: "${VIPS_VERSION:?set VIPS_VERSION, e.g. VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.6 ./build.sh}"
-: "${LIBHEIF_VERSION:?set LIBHEIF_VERSION, e.g. VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.6 ./build.sh}"
+: "${VIPS_VERSION:?set VIPS_VERSION, e.g. VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.7 ./build.sh}"
+: "${LIBHEIF_VERSION:?set LIBHEIF_VERSION, e.g. VIPS_VERSION=8.18.7 LIBHEIF_VERSION=1.23.7 ./build.sh}"
 STACK_VERSIONS="${STACK_VERSIONS:-26}"
 
 cd "$(dirname "$0")"

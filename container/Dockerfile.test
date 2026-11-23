@@ -3,7 +3,7 @@
 # them. If this image builds, the buildpack works on that stack. Context is the repo root.
 #
 #   docker buildx build --platform linux/amd64 --build-arg STACK_VERSION=26 --build-arg VIPS_VERSION=8.18.7 \
-#     --build-arg LIBHEIF_VERSION=1.23.6 --build-arg TARBALL=build/libvips-8.18.7-heif1.23.6-heroku-26-amd64.tar.gz \
+#     --build-arg LIBHEIF_VERSION=1.23.7 --build-arg TARBALL=build/libvips-8.18.7-heif1.23.7-heroku-26-amd64.tar.gz \
 #     -f container/Dockerfile.test .
 
 ARG STACK_VERSION=26
