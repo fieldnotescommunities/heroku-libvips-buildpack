@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- libheif 1.23.7 (security release; libvips stays 8.18.7): fixes a heap use-after-free in parallel grid-tile
+  decoding that only 1.23.6 has, and several CPU-exhaustion paths reachable through HEVC HEIC files (derived-image
+  pixel budget, hidden coded pictures, repeated transformations, many `colr` associations, `stsc` lookup).
 - Build libheif too (1.23.6, HEVC decoding through the image's libde265, no encoders, no AVIF, no uncompressed
   codec, no plugins) and link libvips against it. libvips 8.18.6+ tags `heifload` untrusted when built against
   a libheif older than 1.23.2, which the heroku-26 image's 1.21.2 is, and the app blocks untrusted operations:
